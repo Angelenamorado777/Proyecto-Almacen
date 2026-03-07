@@ -7,8 +7,8 @@ app.use(express.json());
 
 const pool = mysql.createPool({
   host: 'localhost',
-  user: 'root',
-  password: 'root',
+  user: 'Hola',
+  password: 'Hola123',
   database: 'db_almacen'
 });
 
