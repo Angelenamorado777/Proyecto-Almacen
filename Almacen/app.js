@@ -16,9 +16,41 @@ pool.getConnection((error, conexion) => {
   if (error) {
     console.log('Error de conexión a la base de datos');
   } else {
-    console.log('Conexión exitosa');
+    console.log('Conexion exitosa');
   }
 });
+
+app.get('/api/productos', (req, res) => {
+
+   const sql = 'SELECT * FROM Productos';
+
+   pool.query(sql,(error, results) => {
+  if (error) {
+   console.log('Existe un error en la consulta SQL');
+   return res.status(500).json({ message: 'Error en la consulta SQL' });
+  }else {
+  res.status(200).json({ status: 200, message: 'Success', data: results});
+      }
+   });
+  }
+);
+
+//Get por id
+app.get('/api/productos/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = 'SELECT * FROM Productos WHERE id_producto = ?';
+    pool.query(sql, [id], (error, results) => {
+    if (error) {
+    console.error(error);
+    return res.status(500).json({ mensaje: 'Error al buscar el producto en la base de datos' });
+   }
+    if (results.length === 0) {
+    return res.status(404).json({ mensaje: 'No se encontro el producto' });
+   }
+    res.json(results[0]);
+  });
+});
+
 
 app.post('/api/productos', (req, res) => {
   const producto = req.body;
