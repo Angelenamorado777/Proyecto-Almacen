@@ -1,14 +1,14 @@
 const express = require('express');
 const app = express();
 const mysql = require('mysql2')
-const port = 3000;  
+const port = 3000;
 
-app.use(express.json()); 
+app.use(express.json());
 
 const pool = mysql.createPool({
   host: 'localhost',
-  user: 'root',
-  password: 'root',
+  user: 'Hola',
+  password: 'Hola123',
   database: 'db_almacen'
 });
 
@@ -22,31 +22,30 @@ pool.getConnection((error, conexion) => {
 
 app.get('/api/productos', (req, res) => {
 
-   const sql = 'SELECT * FROM Productos';
+  const sql = "SELECT * FROM Productos";
 
-   pool.query(sql,(error, results) => {
-  if (error) {
-   console.log('Existe un error en la consulta SQL');
-   return res.status(500).json({ message: 'Error en la consulta SQL' });
-  }else {
-  res.status(200).json({ status: 200, message: 'Success', data: results});
-      }
-   });
-  }
-);
+  pool.query(sql, (error, results) => {
+    if (error) {
+      console.log('Existe un error en la consulta SQL');
+      return res.status(500).json({ message: 'Error en la consulta SQL' });
+    } else {
+      res.status(200).json({ status: 200, message: 'Success', data: results });
+    }
+  });
+});
 
 //Get por id
 app.get('/api/productos/:id', (req, res) => {
-    const { id } = req.params;
-    const sql = 'SELECT * FROM Productos WHERE id_producto = ?';
-    pool.query(sql, [id], (error, results) => {
+  const { id } = req.params;
+  const sql = 'SELECT * FROM Productos WHERE id_producto = ?';
+  pool.query(sql, [id], (error, results) => {
     if (error) {
-    console.error(error);
-    return res.status(500).json({ mensaje: 'Error al buscar el producto en la base de datos' });
-   }
+      console.error(error);
+      return res.status(500).json({ mensaje: 'Error al buscar el producto en la base de datos' });
+    }
     if (results.length === 0) {
-    return res.status(404).json({ mensaje: 'No se encontro el producto' });
-   }
+      return res.status(404).json({ mensaje: 'No se encontro el producto' });
+    }
     res.json(results[0]);
   });
 });
@@ -94,6 +93,31 @@ app.put('/api/productos/:id', (req, res) => {
     }
   });
 });
+
+// delete
+
+app.delete('/api/productos/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const producto = req.body
+  // Se realizo el cambio de estatus logico 
+  const sql = `UPDATE Productos SET estado = 'inactivo' WHERE id_producto = ?`;
+
+  pool.query(sql, [id,producto.estado], (error, result) => {
+    if (error) {
+      console.log('Existe un error en la consulta SQL');
+      res.status(500).json({ status: 500, message: 'Error en la consulta SQL' });
+    }
+    else {
+      if (result.affectedRows === 0) {
+        res.status(404).json({ status: 404, message: 'Producto no encontrado' });
+      }
+      else {
+        res.status(200).json({ status: 200, message: 'Cambios de estado exitoso'});
+      }
+    }
+  });
+
+})
 
 app.listen(port, () => {
   console.log(`El servidor está escuchando en http://localhost:${port}`);
