@@ -42,8 +42,26 @@ app.post('/api/productos', (req, res) => {
   };
 });
 
+app.put('/api/productos/:id', (req, res) => {
+  const id = req.params.id;
+  const producto = req.body;
 
+  const sql = `UPDATE Productos SET nombre = ?, descripcion = ?, sku = ?, precio_compra = ?, precio_venta = ?, stock_minimo = ?, stock_actual = ?, estado = ?, id_categoria = ?, id_proveedor = ? WHERE id_producto = ?`;
 
+  pool.query(sql, [producto.nombre, producto.descripcion || null, producto.sku, producto.precio_compra, producto.precio_venta, producto.stock_minimo || 0, producto.stock_actual || 0, producto.estado || 'activo', producto.id_categoria || null, producto.id_proveedor || null, id], (error, result) => {
+    if (error) {
+      console.log('Existe un error en la consulta SQL');
+      res.status(500).json({ status: 500, message: 'Error en la consulta SQL' });
+    } else {
+      if (result.affectedRows === 0) {
+        res.status(404).json({ status: 404, message: 'Producto no encontrado' });
+      } else {
+        producto.id_producto = id;
+        res.status(200).json({ status: 200, message: 'Producto actualizado exitosamente', data: producto });
+      }
+    }
+  });
+});
 
 app.listen(port, () => {
   console.log(`El servidor está escuchando en http://localhost:${port}`);
