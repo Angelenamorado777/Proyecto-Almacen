@@ -102,7 +102,7 @@ app.delete('/api/productos/:id', (req, res) => {
   // Se realizo el cambio de estatus logico 
   const sql = `UPDATE Productos SET estado = 'inactivo' WHERE id_producto = ?`;
 
-  pool.query(sql, [id,producto.estado], (error, result) => {
+  pool.query(sql, [id], (error, result) => {
     if (error) {
       console.log('Existe un error en la consulta SQL');
       res.status(500).json({ status: 500, message: 'Error en la consulta SQL' });
